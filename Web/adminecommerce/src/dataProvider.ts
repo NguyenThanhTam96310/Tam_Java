@@ -247,26 +247,43 @@ export const dataProvider: DataProvider = {
         }
     },
     update: async (resource: string, params: UpdateParams): Promise<UpdateResult> => {
-        const url = `${apiUrl}/admin/${resource}/${params.id}`;
-        const { data } = params;
+        if (resource === 'admin') {
+            const url = `${apiUrl}/admin/users/${params.id}`;
+            const { data } = params;
+            const result = await httpClient.put(url, data);
+            const updatedData = {
+                id: params.id,  // Ensure 'id' is included in the response
+                ...result.json
+            };
+
+            return { data: updatedData };
+        } else {
+            const url = `${apiUrl}/admin/${resource}/${params.id}`;
+            const { data } = params;
+            const result = await httpClient.put(url, data);
+
+            const updatedData = {
+                id: params.id,  // Ensure 'id' is included in the response
+                ...result.json
+            };
+
+            return { data: updatedData };
+        }
 
         // Perform the PUT request to update the resource
-        const result = await httpClient.put(url, data);
 
         // Assuming the API response contains the updated data with the correct 'id'
-        const updatedData = {
-            id: params.id,  // Ensure 'id' is included in the response
-            ...result.json
-        };
 
-        return { data: updatedData };
     },
     getOne: async (resource: string, params: GetOneParams): Promise<GetOneResult> => {
         console.log('getOne called for resource:', resource, 'with params:', params);
         let url: string;
         if (resource === "carts") {
             url = `${apiUrl}/public/users/${params.meta.email}/${resource}/${params.id}`;
-        } else if (resource === "addresses" || resource === "orders") {
+        } else if (resource === "orders") {
+            url = `${apiUrl}/public/users/${params.meta.email}/${resource}/${params.id}`;
+        }
+        else if (resource === "addresses") {
             url = `${apiUrl}/admin/${resource}/${params.id}`;
         }
         else if (resource === "admin") {
@@ -284,7 +301,7 @@ export const dataProvider: DataProvider = {
             categories: 'categoryId',
             carts: 'cartId',
             addresses: 'addressId',
-            order: "orderId"
+            orders: "orderId"
             // Add more mappings as needed
         };
 
@@ -312,6 +329,29 @@ export const dataProvider: DataProvider = {
                 }))
             };
         }
+        else if (resource === "orders") {
+            data = {
+                id: result.json[idField], // Correctly mapping the ID field
+                totalAmount: result.json.totalAmount,
+                orderItems: result.json.orderItems.map((orderItem: any) => ({
+                    id: orderItem.orderItemId,
+                    product: {
+                        id: orderItem.product.productId,
+                        productName: orderItem.product.productName,
+                        image: orderItem.product.image ? `${baseUrl}${orderItem.product.image}` : null,
+                        description: orderItem.product.description,
+                        quantity: orderItem.quantity, // quantity from orderItem
+                        price: orderItem.product.price,
+                        discount: orderItem.discount, // discount from orderItem
+                        specialPrice: orderItem.product.specialPrice,
+                        category: orderItem.product.category ? {
+                            id: orderItem.product.category.categoryId,
+                            name: orderItem.product.category.categoryName
+                        } : null,
+                    }
+                }))
+            };
+        }
         else {
             data = {
                 id: result.json[idField],
@@ -319,6 +359,7 @@ export const dataProvider: DataProvider = {
                 ...result.json
             };
         }
+        console.log(data, "====data")
 
         return { data };
     },

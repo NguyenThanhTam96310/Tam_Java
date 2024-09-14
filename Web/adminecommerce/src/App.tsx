@@ -16,8 +16,8 @@ import { ProductList, ProductCreate, ProductEdit } from "./component/product";
 import { CartList, CartShow } from "./component/Carts";
 import ProductImageUpdate from "./component/ProductImageUpdate";
 import { AddressCreate, AddressEdit, AddressList } from "./component/Address";
-import { AdminList } from "./component/Admin";
-import { OrderList } from "./component/Order";
+import { AdminEdit, AdminList } from "./component/Admin";
+import { OrderList, OrderShow } from "./component/Order";
 
 export const App = () => (
   <Admin authProvider={authProvider} layout={Layout} dataProvider={dataProvider} dashboard={Dashboard}>
@@ -32,7 +32,7 @@ export const App = () => (
     <Resource name="products" list={ProductList} create={ProductCreate} edit={ProductEdit} icon={Inventory2Icon} />
     <Resource name="carts" list={CartList} show={CartShow} icon={ShoppingCartIcon} />
     <Resource name="addresses" list={AddressList} edit={AddressEdit} create={AddressCreate} icon={LocationOnIcon} />
-    <Resource name="admin" list={AdminList} icon={PersonIcon} />
-    <Resource name="orders" list={OrderList} icon={ReceiptLongIcon} />
+    <Resource name="admin" list={AdminList} edit={AdminEdit} icon={PersonIcon} />
+    <Resource name="orders" list={OrderList} show={OrderShow} icon={ReceiptLongIcon} />
   </Admin>
 );
