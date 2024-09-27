@@ -1,7 +1,5 @@
 package com.nguyentam.example05.payloads;
 
-import java.util.Locale.Category;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +14,7 @@ public class ProductDTO {
   private String description;
   // private String categoryName;
   private Integer quantity;
+  private Integer quantityCart;
   private double price;
   private double discount;
   private double specialPrice;

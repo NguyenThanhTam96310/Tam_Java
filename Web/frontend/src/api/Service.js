@@ -31,6 +31,9 @@ export function GET_ALL(endpoint, params) {
 export function GET_ID(endpoint, id) {
   return callApi(endpoint + "/" + id, "GET");
 }
+export function GET_EMAIL(endpoint, email) {
+  return callApi(endpoint + "/email/" + email, "GET");
+}
 
 export function POST_ADD(endpoint, data) {
   return callApi(endpoint, "POST", data);
@@ -56,4 +59,9 @@ export function LOGIN(body) {
     .catch((error) => {
       console.log(error); throw error;
     });
+}
+
+export function LOGOUT() {
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("hasRedirected", false);
 }

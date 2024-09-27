@@ -1,10 +1,10 @@
 import React from 'react'
-import SectionContent from '../pages/login/SectionContent'
+import LoginContent from '../pages/login/LoginContent'
 
 const UserLogin = () => {
   return (
     <div className='container'>
-      <SectionContent />
+      <LoginContent />
     </div>
   )
 }

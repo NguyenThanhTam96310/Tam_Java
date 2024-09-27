@@ -57,7 +57,7 @@ const Item = () => {
           <div className="row row-sm">
             {(productsByCategory[category.categoryId] || []).length > 0 &&
               productsByCategory[category.categoryId].map((row, index) => (
-                <div className="col-xl-2 col-lg-3 col-md-4 col-6" key={index}>
+                <div className="col-xl-3 col-lg-3 col-md-3 col-6" key={index}>
                   <div className="card card-sm card-product-grid">
                     <Link to={`/Detail?productId=${row.productId}`} className="img-wrap">
                       <img
@@ -75,9 +75,11 @@ const Item = () => {
                         </li>
                       </ul>
                       <div>
-                        <Link to={`/Detail?productId=${row.productId}`} className="title">
+                        <Link to={`/Detail?productId=${row.productId}`} className="title text-nowrap text-truncate text-decoration-none"
+                          style={{ maxWidth: '200px' }}>
                           {row.productName}
                         </Link>
+                        <a className='text-secondary'> {row.category.categoryName}</a>
                       </div>
                       <div className="price h5 mt-2">${row.price}</div>
                     </figcaption>

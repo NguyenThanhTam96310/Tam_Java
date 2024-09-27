@@ -77,6 +77,7 @@ export const dataProvider: DataProvider = {
             products: 'productId',
             categories: 'categoryId',
             carts: 'cartId',
+            cart_items: 'cartId',
             users: 'userId',
             addresses: 'addressId',
             orders: 'orderId'
@@ -294,12 +295,13 @@ export const dataProvider: DataProvider = {
 
         const result = await httpClient.get(url);
 
-        console.log('API Response:', result.json);
+        console.log('====API Response:', result.json);
 
         const idFieldMapping: { [key: string]: string } = {
             products: 'productId',
             categories: 'categoryId',
             carts: 'cartId',
+            cart_items: 'cartId',
             addresses: 'addressId',
             orders: "orderId"
             // Add more mappings as needed

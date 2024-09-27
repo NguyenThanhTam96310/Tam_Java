@@ -8,6 +8,7 @@ import Item from '../pages/home/Item'
 import Services from '../pages/home/Services'
 import Region from '../pages/home/Region'
 
+
 const Home = (props) => {
   return (
     <div className='container'>

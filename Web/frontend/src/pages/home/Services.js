@@ -5,7 +5,7 @@ const Services = () => {
     <section className="padding-bottom">
 
       <header className="section-heading heading-line">
-        <h4 className="title-section text-uppercase">Trade services</h4>
+        <h4 className="title-section text-uppercase">Dịch vụ thương mại</h4>
       </header>
 
       <div className="row">
@@ -13,8 +13,8 @@ const Services = () => {
           <article className="card card-post">
             <img src={require("../../assets/images/posts/1.jpg")} className="card-img-top" />
             <div className="card-body">
-              <h6 className="title">Trade Assurance</h6>
-              <p className="small text-uppercase text-muted">Order protection</p>
+              <h6 className="title">Đảm bảo thương mại</h6>
+              <p className="small text-uppercase text-muted">Bảo vệ đơn hàng</p>
             </div>
           </article>
           {/* <!-- card.// --> */}
@@ -24,8 +24,8 @@ const Services = () => {
           <article className="card card-post">
             <img src={require("../../assets/images/posts/2.jpg")} className="card-img-top" />
             <div className="card-body">
-              <h6 className="title">Pay anytime</h6>
-              <p className="small text-uppercase text-muted">Finance solution</p>
+              <h6 className="title">Thanh toán mọi lúc</h6>
+              <p className="small text-uppercase text-muted">Giải pháp tài chính</p>
             </div>
           </article>
           {/* <!-- card.// --> */}
@@ -35,8 +35,8 @@ const Services = () => {
           <article className="card card-post">
             <img src={require("../../assets/images/posts/3.jpg")} className="card-img-top" />
             <div className="card-body">
-              <h6 className="title">Inspection solution</h6>
-              <p className="small text-uppercase text-muted">Easy Inspection</p>
+              <h6 className="title">Giải pháp kiểm tra</h6>
+              <p className="small text-uppercase text-muted">Kiểm tra dễ dàng</p>
             </div>
           </article>
           {/* <!-- card.// --> */}
@@ -46,8 +46,8 @@ const Services = () => {
           <article className="card card-post">
             <img src={require("../../assets/images/posts/4.jpg")} className="card-img-top" />
             <div className="card-body">
-              <h6 className="title">Ocean and Air Shipping</h6>
-              <p className="small text-uppercase text-muted">Logistic services</p>
+              <h6 className="title">Vận chuyển hàng không</h6>
+              <p className="small text-uppercase text-muted">Dịch vụ logistics</p>
             </div>
           </article>
           {/* <!-- card.// --> */}
@@ -57,6 +57,7 @@ const Services = () => {
       {/* <!-- row.// --> */}
 
     </section>
+
   )
 }
 

@@ -713,6 +713,10 @@ p:last-child {
   line-height: 1;
 }
 
+.btn-orange {
+  background-color: #ff6600;
+}
+
 .btn-light {
   background-color: #fff;
   border-color: #e5e7ea;
