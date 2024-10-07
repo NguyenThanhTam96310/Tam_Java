@@ -1,9 +1,43 @@
-import React from 'react';
-import i1 from "../../assets/images/items/1.jpg";
-import i2 from "../../assets/images/items/2.jpg";
-import i3 from "../../assets/images/items/3.jpg";
+import { GET_EMAIL, GET_ORDER } from "../../api/Service";
+import React, { useState, useEffect } from 'react';
 
 const Order = () => {
+    const [user, setUser] = useState({});
+    const [order, setOrder] = useState([]);
+    const email = localStorage.getItem('email');
+    const ship = 20;
+
+    useEffect(() => {
+        if (email) {
+            const fetchUserData = async () => {
+                try {
+                    const userResponse = await GET_EMAIL('users', email);
+                    setUser(userResponse);
+                    console.log("===user", userResponse);
+                } catch (error) {
+                    console.error('Failed to fetch user data:', error);
+                }
+            };
+
+            const fetchOrderData = async () => {
+                try {
+                    const orderResponse = await GET_ORDER('users', email);
+                    setOrder(orderResponse);
+                    console.log("===order", orderResponse);
+                } catch (error) {
+                    console.error('Failed to fetch order data:', error);
+                }
+            };
+
+            fetchUserData();
+            fetchOrderData();
+        } else {
+            console.warn('No email found in localStorage.');
+        }
+    }, [email]);
+
+    const total = order?.[0]?.totalAmount + ship;
+
     return (
         <>
             {/* ========================= SECTION PAGETOP ========================= */}
@@ -32,102 +66,69 @@ const Order = () => {
                         {/* col.// */}
                         <main className="col-md-9">
                             {/* Thẻ đơn hàng */}
-                            <article className="card mb-4">
-                                <header className="card-header">
-                                    <a href="#" className="float-right"> <i className="fa fa-print"></i> In</a>
-                                    <strong className="d-inline-block mr-3">Mã đơn hàng: 6123456789</strong>
-                                    <span>Ngày đặt hàng: 16 tháng 12 năm 2018</span>
-                                </header>
-                                <div className="card-body">
-                                    <div className="row">
-                                        <div className="col-md-8">
-                                            <h6 className="text-muted">Giao hàng đến</h6>
-                                            <p>Michael Jackson <br />
-                                                Điện thoại: +1234567890 Email: myname@gmail.com <br />
-                                                Địa chỉ: Số nhà, Tên tòa nhà, Đường 123, <br />
-                                                Hộp thư: 100123
-                                            </p>
-                                        </div>
-                                        <div className="col-md-4">
-                                            <h6 className="text-muted">Thanh toán</h6>
-                                            <span className="text-success">
-                                                <i className="fab fa-lg fa-cc-visa"></i>
-                                                Visa **** 4216
-                                            </span>
-                                            <p>Tổng tạm: $356 <br />
-                                                Phí vận chuyển: $56 <br />
-                                                <span className="b">Tổng cộng: $456</span>
-                                            </p>
+                            {order.length > 0 ? (
+                                <article className="card mb-4">
+                                    <header className="card-header">
+                                        <a href="#" className="float-right"> <i className="fa fa-print"></i> In</a>
+                                        <strong className="d-inline-block mr-3">Mã đơn hàng: {order[0].orderId}</strong> {/* Assuming orderId is available */}
+                                        <span>Ngày đặt hàng: {new Date(order[0].orderDate).toLocaleDateString()}</span> {/* Assuming orderDate is available */}
+                                    </header>
+                                    <div className="card-body">
+                                        <div className="row">
+                                            <div className="col-md-8">
+                                                <h6 className="text-muted">Giao hàng đến</h6>
+                                                <p>{user.firstName} {user.lastName} <br />
+                                                    Điện thoại: {user.mobileNumber} Email: {email} <br />
+                                                    Địa chỉ: Tên tòa nhà: {user.address?.buildingName}, Đường: {user.address?.street}, <br />
+                                                    Thành phố: {user.address?.city}
+                                                </p>
+                                            </div>
+                                            <div className="col-md-4">
+                                                <h6 className="text-muted">Thanh toán</h6>
+                                                <span className="text-success">
+                                                    <i className="fab fa-lg fa-cc-visa"></i>
+                                                    Visa **** 4216
+                                                </span>
+                                                <p>Tổng tạm: ${order[0]?.totalAmount} <br />
+                                                    Phí vận chuyển: ${ship} <br />
+                                                    <span className="b">Tổng cộng: ${total}</span>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="table-responsive">
-                                    <table className="table table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <td width="65">
-                                                    <img src={i1} className="img-xs border" alt="Sản phẩm 1" />
-                                                </td>
-                                                <td>
-                                                    <p className="title mb-0">Tên sản phẩm ở đây</p>
-                                                    <var className="price text-muted">USD 145</var>
-                                                </td>
-                                                <td> Người bán <br /> Nike clothing </td>
-                                                <td width="250">
-                                                    <a href="#" className="btn btn-outline-primary">Theo dõi đơn hàng</a>
-                                                    <div className="dropdown d-inline-block">
-                                                        <a href="#" data-toggle="dropdown" className="dropdown-toggle btn btn-outline-secondary">Thêm</a>
-                                                        <div className="dropdown-menu dropdown-menu-right">
-                                                            <a href="#" className="dropdown-item">Trả hàng</a>
-                                                            <a href="#" className="dropdown-item">Hủy đơn hàng</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src={i2} className="img-xs border" alt="Sản phẩm 2" />
-                                                </td>
-                                                <td>
-                                                    <p className="title mb-0">Tên sản phẩm khác ở đây</p>
-                                                    <var className="price text-muted">USD 15</var>
-                                                </td>
-                                                <td> Người bán <br /> ABC shop </td>
-                                                <td>
-                                                    <a href="#" className="btn btn-outline-primary">Theo dõi đơn hàng</a>
-                                                    <div className="dropdown d-inline-block">
-                                                        <a href="#" data-toggle="dropdown" className="dropdown-toggle btn btn-outline-secondary">Thêm</a>
-                                                        <div className="dropdown-menu dropdown-menu-right">
-                                                            <a href="#" className="dropdown-item">Trả hàng</a>
-                                                            <a href="#" className="dropdown-item">Hủy đơn hàng</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src={i3} className="img-xs border" alt="Sản phẩm 3" />
-                                                </td>
-                                                <td>
-                                                    <p className="title mb-0">Tên sản phẩm ở đây</p>
-                                                    <var className="price text-muted">USD 145</var>
-                                                </td>
-                                                <td> Người bán <br /> Walmart </td>
-                                                <td>
-                                                    <a href="#" className="btn btn-outline-primary">Theo dõi đơn hàng</a>
-                                                    <div className="dropdown d-inline-block">
-                                                        <a href="#" data-toggle="dropdown" className="dropdown-toggle btn btn-outline-secondary">Thêm</a>
-                                                        <div className="dropdown-menu dropdown-menu-right">
-                                                            <a href="#" className="dropdown-item">Trả hàng</a>
-                                                            <a href="#" className="dropdown-item">Hủy đơn hàng</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </article>
+                                    <div className="table-responsive">
+                                        <table className="table table-hover">
+                                            <tbody>
+                                                {order[0]?.orderItems?.map((item) => (
+                                                    <tr key={item.orderItemId}>
+                                                        <td width="65" >
+                                                            <img src={`http://localhost:8080/api/public/products/image/${item.product.image}`} className="img-xs border" alt="Sản phẩm 1" />
+                                                        </td>
+                                                        <td>
+                                                            <p className="title mb-0" style={{ maxWidth: '200px', overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>
+                                                                {item.product.productName}
+                                                            </p>
+                                                            <var className="price text-muted">USD {item.product.price}</var>
+                                                        </td>
+                                                        <td width="250">
+                                                            <a href="#" className="btn btn-outline-primary">Theo dõi đơn hàng</a>
+                                                            <div className="dropdown d-inline-block">
+                                                                <a href="#" data-toggle="dropdown" className="dropdown-toggle btn btn-outline-secondary">Thêm</a>
+                                                                <div className="dropdown-menu dropdown-menu-right">
+                                                                    <a href="#" className="dropdown-item">Trả hàng</a>
+                                                                    <a href="#" className="dropdown-item">Hủy đơn hàng</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </article>
+                            ) : (
+                                <p className="text-center">Không có đơn hàng nào để hiển thị.</p>
+                            )}
                             {/* Kết thúc Thẻ đơn hàng */}
                         </main>
                     </div>

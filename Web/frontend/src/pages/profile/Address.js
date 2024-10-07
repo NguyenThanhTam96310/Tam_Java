@@ -1,6 +1,24 @@
-import React from 'react';
+import { GET_ID } from "../../api/Service";
+import React, { useState, useEffect } from 'react';
 
 const Address = () => {
+    const [address, setAddress] = useState([]);
+    const id = localStorage.getItem('CartId');
+
+    useEffect(() => {
+        if (id) {
+            GET_ID('addresses', id)
+                .then(response => {
+                    setAddress(response);
+                    console.log("===address", response)
+                })
+                .catch(error => {
+                    console.error('Failed to fetch user data:', error);
+                });
+        } else {
+            console.warn('No email found in localStorage.');
+        }
+    }, [id]);
     return (
         <>
             {/* ========================= PHẦN TIÊU ĐỀ ========================= */}
@@ -31,12 +49,11 @@ const Address = () => {
                             <a href="#" className="btn btn-light mb-3">
                                 <i className="fa fa-plus"></i> Thêm địa chỉ mới
                             </a>
-
                             <div className="row">
                                 <div className="col-md-6">
                                     <article className="box mb-4">
-                                        <h6>London, Vương quốc Anh</h6>
-                                        <p>Toà nhà: Nestone <br /> Tầng: 22, Căn hộ: 12</p>
+                                        <h6>{address.city},{address.country}</h6>
+                                        <p>Toà nhà:{address.buildingName} <br /> Căn hộ: {address.state}</p>
                                         <a href="#" className="btn btn-light disabled">
                                             <i className="fa fa-check"></i> Mặc định
                                         </a>
@@ -48,35 +65,6 @@ const Address = () => {
                                         </a>
                                     </article>
                                 </div>
-                                {/* col.// */}
-                                <div className="col-md-6">
-                                    <article className="box mb-4">
-                                        <h6>Tashkent, Uzbekistan</h6>
-                                        <p>Toà nhà một <br /> Tầng: 2, Căn hộ: 32</p>
-                                        <a href="#" className="btn btn-light">Đặt làm mặc định</a>
-                                        <a href="#" className="btn btn-light">
-                                            <i className="fa fa-pen"></i>
-                                        </a>
-                                        <a href="#" className="btn btn-light">
-                                            <i className="text-danger fa fa-trash"></i>
-                                        </a>
-                                    </article>
-                                </div>
-                                {/* col.// */}
-                                <div className="col-md-6">
-                                    <article className="box mb-4">
-                                        <h6>Moscow, Nga</h6>
-                                        <p>Đường Lenin <br /> Toà nhà A, Tầng: 3, Căn hộ: 32</p>
-                                        <a href="#" className="btn btn-light">Đặt làm mặc định</a>
-                                        <a href="#" className="btn btn-light">
-                                            <i className="fa fa-pen"></i>
-                                        </a>
-                                        <a href="#" className="btn btn-light">
-                                            <i className="text-danger fa fa-trash"></i>
-                                        </a>
-                                    </article>
-                                </div>
-                                {/* col.// */}
                             </div>
                             {/* row.// */}
                         </main>

@@ -1,13 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LOGOUT, GET_ALL } from "../api/Service";
+import { LOGOUT, GET_ALL, GET_EMAIL } from "../api/Service";
+import { toast } from 'react-toastify';
 
 const Header = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const email = localStorage.getItem("email");
+  const CartId = localStorage.getItem("CartId");
+  const CartLength = localStorage.getItem("CartLength");
+
+
   const navigate = useNavigate();
   const handleLogout = () => {
     LOGOUT();
+    toast.success("Đăng xuất thành công", {
+      position: "top-right",
+      autoClose: 2000,
+    });
     navigate('/Login');
   }
+  useEffect(() => {
+    if (email) {
+      GET_EMAIL('users', email)
+        .then(response => {
+          const cart = response.cart;
+          setCartItems(cart.products);
+          localStorage.setItem('CartId', cart.cartId);
+          //console.log("===cart", cart)
+          localStorage.setItem('CartLength', cart.products.length);
+        })
+        .catch(error => {
+          console.error('Failed to fetch cart items:', error);
+        });
+    } else {
+      console.warn('No email found in localStorage.');
+    }
+  }, [email]);
 
   return (
     <header className="section-header">
@@ -76,7 +104,6 @@ const Header = () => {
                   <a href="/Myprofile" className="widget-view text-decoration-none">
                     <div className="icon-area">
                       <i className="fa fa-user"></i>
-                      <span className="notify">3</span>
                     </div>
                     <small className="text"> Hồ sơ của tôi </small>
                   </a>
@@ -93,6 +120,7 @@ const Header = () => {
                   <a href="/cart" className="widget-view text-decoration-none">
                     <div className="icon-area">
                       <i className="fa fa-shopping-cart"></i>
+                      <span className="notify">{CartLength}</span>
                     </div>
                     <small className="text"> Giỏ hàng </small>
                   </a>

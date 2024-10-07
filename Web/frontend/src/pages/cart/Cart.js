@@ -1,37 +1,106 @@
 import React, { useState, useEffect } from 'react';
-import i1 from "../../assets/images/items/1.jpg";  // Example image
-import { GET_EMAIL } from '../../api/Service';
+import { GET_EMAIL, DELETE_ID } from '../../api/Service';
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const Cart = () => {
-    // State for holding cart items and cart length
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
-
-    // Get email from localStorage
     const email = localStorage.getItem("email");
+    const CartId = localStorage.getItem("CartId");
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if email exists before making the API call
         if (email) {
             GET_EMAIL('users', email)
                 .then(response => {
-                    // Assuming cart object is inside response and cartItems are in response.cart.products
                     const cart = response.cart;
                     setCartItems(cart.products);
                     setTotalPrice(cart.totalPrice);
-                    console.log('Cart Items:', cart.products);
+                    localStorage.setItem('CartId', cart.cartId);
+                    localStorage.setItem('CartLength', cart.products.length);
                 })
                 .catch(error => {
                     console.error('Failed to fetch cart items:', error);
                 });
         } else {
-            console.warn('No email found in localStorage.');
+            console.warn('No id found in localStorage.');
         }
     }, [email]);
 
+    const handleDelete = (CartId, productId) => {
+        const url = `/carts/${CartId}/product/${productId}`;
+
+        DELETE_ID(url)
+            .then(response => {
+                const updatedCartItems = cartItems.filter(item => item.productId !== productId);
+                setCartItems(updatedCartItems);
+                localStorage.setItem('CartLength', updatedCartItems.length);
+                const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+                setTotalPrice(newTotalPrice);
+
+                toast.success("Xóa thành công", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+                navigate('/cart');
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                toast.error("Xóa thất bại", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+            });
+    };
+
+    const updateQuantity = (productId, newQuantity) => {
+        const updatedCartItems = cartItems.map(item =>
+            item.productId === productId ? { ...item, quantity: newQuantity } : item
+        );
+
+        setCartItems(updatedCartItems);
+        const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+        setTotalPrice(newTotalPrice);
+    };
+
+    const handleEditQuantity = (productId, newQuantity) => {
+        // Prevent the quantity from being less than 1
+        if (newQuantity < 1) return;
+
+        // Update the quantity for the specified product
+        const updatedCartItems = cartItems.map(item =>
+            item.productId === productId ? { ...item, quantity: newQuantity } : item
+        );
+
+        setCartItems(updatedCartItems);
+
+        // Recalculate total price
+        const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+        setTotalPrice(newTotalPrice);
+
+        toast.success("Quantity updated successfully", {
+            position: "bottom-right",
+            autoClose: 2000,
+        });
+    };
+
+    const increaseQuantity = (productId) => {
+        const item = cartItems.find(item => item.productId === productId);
+        if (item) {
+            handleEditQuantity(productId, item.quantity + 1);
+        }
+    };
+
+    const decreaseQuantity = (productId) => {
+        const item = cartItems.find(item => item.productId === productId);
+        if (item && item.quantity > 1) {
+            handleEditQuantity(productId, item.quantity - 1);
+        }
+    };
+
     return (
         <>
-            {/* ========================= SECTION CONTENT ========================= */}
             <section className="section-content padding-y">
                 <div className="container">
                     <div className="row">
@@ -41,9 +110,10 @@ const Cart = () => {
                                     <thead className="text-muted">
                                         <tr className="small text-uppercase">
                                             <th scope="col">Product</th>
-                                            <th scope="col" width="120">Quantity</th>
+                                            <th scope="col" className='text-center' width="200">Quantity</th>
                                             <th scope="col" width="120">Price</th>
-                                            <th scope="col" className="text-right" width="200"> </th>
+                                            <th scope="col" className="text-center" width="100"> </th>
+                                            <th scope="col" className="text-center" width="100"> </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -52,7 +122,7 @@ const Cart = () => {
                                                 <td>
                                                     <figure className="itemside">
                                                         <div className="aside">
-                                                            <img src={`http://localhost:8080/api/public/products/image/${item.image}`} className="img-sm" alt={item.name} />
+                                                            <img src={`http://localhost:8080/api/public/products/image/${item.image}`} className="img-sm" alt={item.productName} />
                                                         </div>
                                                         <figcaption className="info">
                                                             <a href="#" className="title text-dark text-decoration-none">{item.productName}</a>
@@ -60,17 +130,31 @@ const Cart = () => {
                                                     </figure>
                                                 </td>
                                                 <td>
-                                                    <select className="form-control">
-                                                        <option>{item.quantity}</option>
-                                                    </select>
+                                                    <div className="input-group mb-0">
+                                                        <div className="input-group-prepend">
+                                                            <button className="btn btn-light" type="button" onClick={() => decreaseQuantity(item.productId)}> - </button>
+                                                        </div>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control"
+                                                            value={item.quantity}
+                                                            onChange={(e) => handleEditQuantity(item.productId, Number(e.target.value))}
+                                                            min="1" // Prevents entering 0 or negative numbers
+                                                        />
+                                                        <div className="input-group-append">
+                                                            <button className="btn btn-light" type="button" onClick={() => increaseQuantity(item.productId)}> + </button>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <div className="price-wrap">
-                                                        <var className="price">${item.price.toFixed(2)}</var>
+                                                        <var className="price">${(item.price * item.quantity).toFixed(2)}</var>
                                                     </div>
                                                 </td>
                                                 <td className="text-right">
-                                                    <a href="#" className="btn btn-danger">Remove</a>
+                                                    <button className="btn btn-danger" onClick={() => handleDelete(CartId, item.productId)}>
+                                                        Remove
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -79,7 +163,7 @@ const Cart = () => {
 
                                 <div className="card-body border-top">
                                     <a href="/Payment" className="btn btn-primary float-md-right">Payment <i className="fa fa-chevron-right"></i> </a>
-                                    <a href="#" className="btn btn-light"> <i className="fa fa-chevron-left"></i> Continue shopping </a>
+                                    <a href="/" className="btn btn-light"> <i className="fa fa-chevron-left"></i> Continue shopping </a>
                                 </div>
                             </div>
 
@@ -90,7 +174,6 @@ const Cart = () => {
                             </div>
                         </main>
 
-                        {/* Right Sidebar */}
                         <aside className="col-md-3">
                             <div className="card mb-3">
                                 <div className="card-body">
@@ -131,9 +214,7 @@ const Cart = () => {
                     </div>
                 </div>
             </section>
-            {/* ========================= SECTION CONTENT END ========================= */}
 
-            {/* ========================= SECTION POLICY ========================= */}
             <section className="section-name border-top padding-y">
                 <div className="container">
                     <h6>Payment and refund policy</h6>

@@ -12,6 +12,8 @@ import com.nguyentam.example05.entity.Product;
 import com.nguyentam.example05.exceptions.APIException;
 import com.nguyentam.example05.exceptions.ResourceNotFoundException;
 import com.nguyentam.example05.payloads.CartDTO;
+import com.nguyentam.example05.payloads.CartItemDTO;
+import com.nguyentam.example05.payloads.OrderDTO;
 import com.nguyentam.example05.payloads.ProductDTO;
 import com.nguyentam.example05.repository.CartItemRepo;
 import com.nguyentam.example05.repository.CartRepo;
@@ -38,6 +40,7 @@ public class CartServiceImpl implements CartService {
         .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
     Product product = productRepo.findById(productId)
         .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+    // product.setQuantity(product.getQuantity()-quantity);
     CartItem cartItem = cartItemRepo.findCartItemByProductIdAndCartId(cartId, productId);
     if (cartItem != null) {
       throw new APIException("Product" + product.getProductName() + "already exists in the cart");
@@ -77,6 +80,9 @@ public class CartServiceImpl implements CartService {
       List<ProductDTO> products = cart.getCartItems().stream()
           .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
       cartDTO.setProducts(products);
+      List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
+          .map(p -> modelMapper.map(p.getProduct(), CartItemDTO.class)).collect(Collectors.toList());
+      cartDTO.setCartItem(cartItemDTOs);
       return cartDTO;
     }).collect(Collectors.toList());
     return cartDTOs;
@@ -92,7 +98,11 @@ public class CartServiceImpl implements CartService {
     List<ProductDTO> products = cart.getCartItems().stream()
         .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class))
         .collect(Collectors.toList());
+    List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
+        .map(p -> modelMapper.map(p.getProduct(), CartItemDTO.class)).collect(Collectors.toList());
+    cartDTO.setCartItem(cartItemDTOs);
     cartDTO.setProducts(products);
+
     return cartDTO;
   }
 

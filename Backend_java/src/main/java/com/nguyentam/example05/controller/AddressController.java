@@ -25,13 +25,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api")
 @SecurityRequirement(name = "E-Commerce Application")
 public class AddressController {
   @Autowired
   private AddressService addressService;
 
-  @PostMapping("/address")
+  @PostMapping("/admin/address")
   public ResponseEntity<AddressDTO>
 
       createAddress(@Valid @RequestBody AddressDTO addressDTO) {
@@ -44,7 +44,7 @@ public class AddressController {
   // List<AddressDTO> addressDTOS = addressService.getAddresses();
   // return new ResponseEntity<List<AddressDTO>>(addressDTOS, HttpStatus.OK);
   // }
-  @GetMapping("/addresses")
+  @GetMapping("/admin/addresses")
   public ResponseEntity<AddressResponse> getAddresses(
       @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
       @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
@@ -58,7 +58,7 @@ public class AddressController {
     return new ResponseEntity<AddressResponse>(addressResponse, HttpStatus.OK);
   }
 
-  @GetMapping("/addresses/{addressId}")
+  @GetMapping("/public/addresses/{addressId}")
   public ResponseEntity<AddressDTO>
 
       getAddress(@PathVariable Long addressId) {
@@ -66,7 +66,7 @@ public class AddressController {
     return new ResponseEntity<AddressDTO>(addressDTO, HttpStatus.OK);
   }
 
-  @PutMapping("/addresses/{addressId}")
+  @PutMapping("/admin/addresses/{addressId}")
   public ResponseEntity<AddressDTO>
 
       updateAddress(@PathVariable Long addressId, @RequestBody Address address) {
@@ -74,7 +74,7 @@ public class AddressController {
     return new ResponseEntity<AddressDTO>(addressDTO, HttpStatus.OK);
   }
 
-  @DeleteMapping("/addresses/{addressId}")
+  @DeleteMapping("/admin/addresses/{addressId}")
   public ResponseEntity<String> deleteAddress(@PathVariable Long addressId) {
     String status = addressService.deleteAddress(addressId);
     return new ResponseEntity<String>(status, HttpStatus.OK);

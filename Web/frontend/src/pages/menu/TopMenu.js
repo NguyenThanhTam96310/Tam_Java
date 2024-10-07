@@ -30,47 +30,17 @@ const TopMenu = () => {
                             <li className="nav-item">
                                 <Link to={"/shop"} className="nav-link text-decoration-none">Cửa hàng của tôi</Link>
                             </li>
-                            <li className="nav-item dropdown">
-                                <button className="nav-link dropdown-toggle border-0 bg-transparent text-decoration-none" style={{ outline: "none" }} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Danh mục
-                                </button>
-                                <ul className="dropdown-menu">
-                                    {categories.map((cat, index) => (
-                                        <li key={index}>
-                                            <Link to={`/ListingGrid?categoryId=${cat.categoryId}`} className='dropdown-item text-decoration-none'>
-                                                {cat.categoryName}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                    <li>
-                                        <Link to={'/ListingGrid'} className='dropdown-item text-decoration-none'>Tất cả sản phẩm</Link>
-                                    </li>
-                                </ul>
+                            {categories.map((cat, index) => (
+                                <li className="nav-item" key={index}>
+                                    <Link className="nav-link text-decoration-none" to={`/ListingGrid?categoryId=${cat.categoryId}`} >
+                                        {cat.categoryName}
+                                    </Link>
+                                </li>
+                            ))}
+                            <li>
+                                <Link to={'/ListingGrid'} className="nav-link text-decoration-none">Tất cả sản phẩm</Link>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/electronic"}>Điện tử</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/fashion"}>Thời trang</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/beauty"}>Làm đẹp</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/motors"}>Xe cộ</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/sport"}>Thể thao</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/gardening"}>Làm vườn</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/deal"}>Khuyến mãi</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-decoration-none" to={"/under"}>Dưới $10</Link>
-                            </li>
+
                         </ul>
                     </nav>
                 </div>

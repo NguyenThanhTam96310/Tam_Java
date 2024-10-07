@@ -16,6 +16,7 @@ import Payment from '../pages/cart/Payment';
 import Header from './Header';
 import TopMenu from '../pages/menu/TopMenu';
 import Footer from './Footer';
+import { ToastContainer } from 'react-toastify';
 
 const Main = () => {
   const location = useLocation();

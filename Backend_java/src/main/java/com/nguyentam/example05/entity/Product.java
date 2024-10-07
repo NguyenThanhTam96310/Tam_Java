@@ -45,4 +45,6 @@ public class Product {
   private List<CartItem> products = new ArrayList<>();
   @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<OrderItem> orderItems = new ArrayList<>();
+  @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+  private List<CartItem> cartItems = new ArrayList<>();
 }

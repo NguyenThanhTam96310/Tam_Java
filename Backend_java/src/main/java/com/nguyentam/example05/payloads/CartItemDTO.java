@@ -1,5 +1,7 @@
 package com.nguyentam.example05.payloads;
 
+import com.nguyentam.example05.entity.Product;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

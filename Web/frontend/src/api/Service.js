@@ -28,6 +28,9 @@ export function GET_ALL(endpoint, params) {
   return callApi(endpoint, "GET", null, params);
 }
 
+export function GET_ORDER(endpoint, email) {
+  return callApi(endpoint + "/" + email + "/orders", "GET");
+}
 export function GET_ID(endpoint, id) {
   return callApi(endpoint + "/" + id, "GET");
 }
@@ -61,7 +64,11 @@ export function LOGIN(body) {
     });
 }
 
+
+
 export function LOGOUT() {
   localStorage.removeItem("authToken");
-  localStorage.removeItem("hasRedirected", false);
+  localStorage.removeItem("CartId");
+  localStorage.removeItem("email");
+  localStorage.removeItem("CartLength");
 }

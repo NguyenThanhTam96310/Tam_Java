@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { GET_ID } from '../../api/Service';
+import { Link, useNavigate } from 'react-router-dom';
+import { GET_ID, POST_ADD } from '../../api/Service';
+import { toast } from 'react-toastify';
 
 const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [quantity, setQuantity] = useState(1); // State for quantity
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const productId = queryParams.get('productId');
-
+    const navigate = useNavigate();
     useEffect(() => {
         setLoading(true);
         if (productId) {
             GET_ID('products', productId)
                 .then((item) => {
                     setProduct(item);
+                    console.log("====product", item)
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -23,6 +27,38 @@ const ProductDetail = () => {
                 });
         }
     }, [productId]);
+
+    const handleAddCart = (CartId, productId) => {
+        const url = `/carts/${CartId}/products/${productId}/quantity/${quantity}`; // Use quantity state
+
+        POST_ADD(url)
+            .then(response => {
+                toast.success("Thêm vào giỏ hàng thành công", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+                const currentLength = parseInt(localStorage.getItem('CartLength'));
+                localStorage.setItem('CartLength', currentLength + 1);
+                navigate(`/Detail?productId=${productId}`);
+
+            })
+            .catch(error => {
+                console.error('Add to cart error:', error);
+                toast.error("Thêm vào giỏ hàng thất bại", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+            });
+    };
+
+
+    const increaseQuantity = () => {
+        setQuantity(prevQuantity => prevQuantity + 1);
+    };
+
+    const decreaseQuantity = () => {
+        setQuantity(prevQuantity => Math.max(1, prevQuantity - 1)); // Prevent going below 1
+    };
 
     if (loading) {
         return <div className="d-flex justify-content-center"><div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div></div>;
@@ -35,7 +71,6 @@ const ProductDetail = () => {
     return (
         <section className='section-content bg-white padding-y'>
             <div className='container'>
-                {/* Chi tiết sản phẩm */}
                 <div className='row'>
                     <aside className='col-md-6'>
                         <div className='card'>
@@ -53,6 +88,7 @@ const ProductDetail = () => {
                                 </div>
 
                                 <div className='thumbs-wrap'>
+                                    <a href="#" className='item-thumb'><img src={`http://localhost:8080/api/public/products/image/${product.image}`} alt={product.productName} /></a>
                                     <a href="#" className='item-thumb'><img src={`http://localhost:8080/api/public/products/image/${product.image}`} alt={product.productName} /></a>
                                     <a href="#" className='item-thumb'><img src={`http://localhost:8080/api/public/products/image/${product.image}`} alt={product.productName} /></a>
                                     <a href="#" className='item-thumb'><img src={`http://localhost:8080/api/public/products/image/${product.image}`} alt={product.productName} /></a>
@@ -82,36 +118,23 @@ const ProductDetail = () => {
                             </div>
                             <div className='mb-3'>
                                 <var className='price h4'>USD {product.specialPrice}</var>
-                                <span className='text-muted '> USD {product.price} đã bao gồm VAT</span>
+                                <span className='text-muted'> USD {product.price} đã bao gồm VAT</span>
                             </div>
                             <p>{product.description}</p>
-                            <dl className='row'>
-                                <dt className='col-sm-3'>Nhà sản xuất</dt>
-                                <dd className='col-sm-9 '><a className='text-decoration-none text-black' href="#">Great textile Ltd.</a></dd>
-                                <dt className='col-sm-3'>Số bài viết</dt>
-                                <dd className='col-sm-9'>596 065</dd>
-                                <dt className='col-sm-3'>Bảo hành</dt>
-                                <dd className='col-sm-9'>2 năm</dd>
-                                <dt className='col-sm-3'>Thời gian giao hàng</dt>
-                                <dd className='col-sm-9'>3-4 ngày</dd>
-                                <dt className='col-sm-3'>Tình trạng</dt>
-                                <dd className='col-sm-9'>Còn hàng</dd>
-                            </dl>
                             <div className='form-row mt-4 d-flex align-items-center'>
                                 <div className="form-group mb-0 flex-grow-0 d-flex align-items-center">
                                     <div className="input-group mb-0">
                                         <div className="input-group-prepend">
-                                            <button className="btn btn-light" type="button" id="button-plus"> - </button>
+                                            <button className="btn btn-light" type="button" onClick={decreaseQuantity}> - </button>
                                         </div>
-                                        <input type="text" className="form-control" value="1" />
-
+                                        <input type="text" className="form-control" value={quantity} readOnly />
                                         <div className="input-group-append">
-                                            <button className="btn btn-light" type="button" id="button-minus"> + </button>
+                                            <button className="btn btn-light" type="button" onClick={increaseQuantity}> + </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div className='form-group mb-0  pt-3'>
-                                    <a href='#' className='btn btn-outline-warning'>
+                                <div className='form-group mb-0 pt-3'>
+                                    <a className='btn btn-outline-warning' onClick={() => handleAddCart(localStorage.getItem("CartId"), product.productId)}>
                                         <i className='fas fa-shopping-cart'></i> <span className='text'>Thêm vào giỏ hàng</span>
                                     </a>
                                     <a href='#' className='btn btn-light ml-2'>
@@ -119,34 +142,30 @@ const ProductDetail = () => {
                                     </a>
                                 </div>
                             </div>
-
                         </article>
                     </main>
                 </div>
 
-                {/* Các phần bổ sung */}
+                {/* Other sections... */}
                 <section className='section-name padding-y bg'>
                     <div className='container'>
                         <div className='row'>
                             <div className='col-md-8'>
                                 <h5 className='title-description'>Mô tả</h5>
                                 <p>{product.description}</p>
-                                {/* Thêm chi tiết nếu cần */}
                             </div>
                             <aside className='col-md-4'>
                                 <div className='box'>
                                     <h5 className='title-description'>Tệp tin</h5>
                                     <p>Các tệp tin và thông tin bổ sung về sản phẩm.</p>
-                                    {/* Thêm liên kết tệp nếu cần */}
                                     <h5 className='title-description'>Video</h5>
-                                    {/* Thêm video hoặc phương tiện khác */}
                                 </div>
                             </aside>
                         </div>
                     </div>
                 </section>
 
-                {/* Phần Đăng ký nhận tin */}
+                {/* Newsletter Section */}
                 <section className='padding-y-lg bg-light border-top'>
                     <div className='container'>
                         <p className='pb-2 text-center'>Cung cấp các xu hướng sản phẩm mới nhất và tin tức ngành công nghiệp trực tiếp đến hộp thư của bạn</p>
@@ -169,7 +188,6 @@ const ProductDetail = () => {
                 </section>
             </div>
         </section>
-
     );
 };
 

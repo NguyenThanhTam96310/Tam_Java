@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { LOGIN } from "../../api/Service";
-import { useNavigate } from "react-router-dom"; // Import useNavigate instead
+import { LOGIN, GET_EMAIL } from "../../api/Service";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const SectionContent = () => {
   const [email, setEmail] = useState("");
-  const [cartId, setCartId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
@@ -21,18 +20,29 @@ const SectionContent = () => {
         if (token) {
           localStorage.setItem('authToken', token);
           localStorage.setItem('email', email);
-          localStorage.setItem('cartId', cartId);
 
-          window.alert("Login successful!");
+          toast.success("Đăng nhập thành công", {
+            position: "top-right",
+            autoClose: 2000,
+          });
           navigate("/");
         } else {
-          window.alert("Token not found in response");
+          toast.error("Đăng nhập thành công", {
+            position: "top-right",
+            autoClose: 2000,
+          });
         }
       } else {
-        window.alert("Login response is missing data");
+        toast.error("Tài khoản hoặc mặt khẩu không chính xác", {
+          position: "top-right",
+          autoClose: 2000,
+        });
       }
     } catch (error) {
-      window.alert("Login failed:" + error.message);
+      toast.error("Đăng nhập thấi bại:" + error.message, {
+        position: "top-right",
+        autoClose: 2000,
+      });
     }
   };
 

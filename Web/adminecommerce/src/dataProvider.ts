@@ -285,7 +285,7 @@ export const dataProvider: DataProvider = {
             url = `${apiUrl}/public/users/${params.meta.email}/${resource}/${params.id}`;
         }
         else if (resource === "addresses") {
-            url = `${apiUrl}/admin/${resource}/${params.id}`;
+            url = `${apiUrl}/public/${resource}/${params.id}`;
         }
         else if (resource === "admin") {
             url = `${apiUrl}/public/users/${params.id}`;

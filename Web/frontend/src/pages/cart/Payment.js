@@ -1,132 +1,140 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { GET_ID } from '../../api/Service';
-import i1 from "../../assets/images/items/1.jpg";
-import i2 from "../../assets/images/items/2.jpg";
-import i3 from "../../assets/images/items/3.jpg";
+import { GET_ORDER, GET_EMAIL, POST_ADD } from '../../api/Service';
+import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 
 const Payment = () => {
+    const [user, setUser] = useState({});
+    const [order, setOrder] = useState([]);
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const email = localStorage.getItem('email');
+    const id = localStorage.getItem('CartId');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (!email) {
+                    throw new Error('No email found in localStorage');
+                }
+
+                const [userResponse, orderResponse] = await Promise.all([
+                    GET_EMAIL('users', email),
+                    GET_ORDER('users', email)
+                ]);
+
+                setUser(userResponse);
+                setOrder(orderResponse);
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                setError(error.message);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [email]);
+
+    const handlePayment = (email, id, paymentMethod) => {
+        if (!paymentMethod) {
+            toast.error("Vui lòng chọn phương thức thanh toán", {
+                position: "bottom-right",
+                autoClose: 2000,
+            });
+            return;
+        }
+
+        const url = `/users/${email}/carts/${id}/payments/${paymentMethod}/order`;
+        POST_ADD(url)
+            .then(response => {
+                toast.success("Thanh toán thành công", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+                localStorage.setItem('CartLength', 0);
+                navigate("/cart");
+
+            })
+            .catch(error => {
+                console.error('Payment error:', error);
+                toast.error("Thanh toán thất bại", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+            });
+    };
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
     return (
         <section className="section-content padding-y">
             <div className="container" style={{ maxWidth: '720px' }}>
-
                 <div className="card mb-4">
                     <div className="card-body">
-                        <h4 className="card-title mb-3">Delivery info</h4>
-
-                        <div class="form-row">
-                            <div class="form-group col-sm-6">
-                                <label class="js-check box active">
-                                    <input type="radio" name="dostavka" value="option1" checked />
-                                    <h6 class="title">Standart delivery</h6>
-                                    <p class="text-muted">Free by airline within 20 days</p>
-                                </label>
-                            </div>
-                            <div class="form-group col-sm-6">
-                                <label class="js-check box">
-                                    <input type="radio" name="dostavka" value="option1" />
-                                    <h6 class="title">Fast delivery</h6>
-                                    <p class="text-muted">Extra 20$ will be charged </p>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="col form-group">
-                                <label>First name</label>
-                                <input type="text" className="form-control" placeholder="" />
-                            </div>
-                            <div className="col form-group">
-                                <label>Last name</label>
-                                <input type="text" className="form-control" placeholder="" />
-                            </div>
-                        </div>
-
+                        <h4 className="card-title mb-3">Thông tin giao hàng</h4>
                         <div className="form-row">
                             <div className="col form-group">
                                 <label>Email</label>
-                                <input type="email" className="form-control" placeholder="" />
+                                <input type="email" className="form-control" value={user.email || ''} readOnly />
                             </div>
                             <div className="col form-group">
-                                <label>Phone</label>
-                                <input type="text" className="form-control" placeholder="" />
+                                <label>Điện thoại</label>
+                                <input type="text" className="form-control" value={user.mobileNumber || ''} readOnly />
                             </div>
                         </div>
-
                         <div className="form-row">
                             <div className="form-group col-md-6">
-                                <label>Country</label>
-                                <select id="inputState" className="form-control">
-                                    <option>Choose...</option>
-                                    <option>Uzbekistan</option>
-                                    <option>Russia</option>
-                                    <option selected>United States</option>
-                                    <option>India</option>
-                                    <option>Afghanistan</option>
-                                </select>
+                                <label>Quốc gia</label>
+                                <input type="text" className="form-control" value={user.address?.country || ''} readOnly />
                             </div>
                             <div className="form-group col-md-6">
-                                <label>City</label>
-                                <input type="text" className="form-control" />
+                                <label>Thành phố</label>
+                                <input type="text" className="form-control" value={user.address?.city || ''} readOnly />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label>Address</label>
-                            <textarea className="form-control" rows="2"></textarea>
+                            <label>Địa chỉ</label>
+                            <textarea className="form-control" rows="2" value={user.address?.street || ''} readOnly></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div className="card mb-4">
-                    <div className="card-body">
-                        <h4 className="card-title mb-4">Payment</h4>
-                        <form role="form" style={{ maxWidth: '380px' }}>
-                            <div className="form-group">
-                                <label htmlFor="username">Name on card</label>
-                                <input type="text" className="form-control" name="username" placeholder="Ex. John Smith" required />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="cardNumber">Card number</label>
-                                <div className="input-group">
-                                    <input type="text" className="form-control" name="cardNumber" placeholder="" />
-                                    <div className="input-group-append">
-                                        <span className="input-group-text">
-                                            <i className="fab fa-cc-visa"></i> &nbsp; <i className="fab fa-cc-amex"></i> &nbsp;
-                                            <i className="fab fa-cc-mastercard"></i>
-                                        </span>
-                                    </div>
+                <div className="card ">
+                    <div className="card-body col-md-12">
+                        <h4 className="card-title">Thanh toán</h4>
+                        <form role="form">
+                            <div className="form-row">
+                                <div className="form-group col-md-6">
+                                    <label htmlFor="paymentMethod">Phương thức thanh toán</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="paymentMethod"
+                                        placeholder="VD: Momo"
+                                        value={paymentMethod}
+                                        onChange={(e) => setPaymentMethod(e.target.value)}
+                                        required
+                                    />
                                 </div>
                             </div>
-
-                            <div className="row">
-                                <div className="col-md flex-grow-0">
-                                    <div className="form-group">
-                                        <label className="hidden-xs">Expiration</label>
-                                        <div className="form-inline" style={{ minWidth: '220px' }}>
-                                            <select className="form-control" style={{ width: '100px' }}>
-                                                <option>MM</option>
-                                                <option>01 - January</option>
-                                                <option>02 - February</option>
-                                                <option>03 - March</option>
-                                            </select>
-                                            <span style={{ width: '20px', textAlign: 'center' }}> / </span>
-                                            <select className="form-control" style={{ width: '100px' }}>
-                                                <option>YY</option>
-                                                <option>2023</option>
-                                                <option>2024</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-3">
-                                    <div className="form-group">
-                                        <label data-toggle="tooltip" title="3 digits code on back side of the card">CVV <i className="fa fa-question-circle"></i></label>
-                                        <input className="form-control" required type="text" />
-                                    </div>
-                                </div>
-                            </div>
-                            <button className="subscribe btn btn-primary btn-block" type="button"> Confirm </button>
+                            <button
+                                className="subscribe btn btn-primary btn-block"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePayment(email, id, paymentMethod);
+                                }}
+                            >
+                                Xác nhận
+                            </button>
                         </form>
                     </div>
                 </div>
