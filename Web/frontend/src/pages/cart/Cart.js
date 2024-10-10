@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GET_EMAIL, DELETE_ID } from '../../api/Service';
+import { GET_CART, PUT_EDIT, DELETE_ID } from '../../api/Service';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
@@ -12,91 +12,86 @@ const Cart = () => {
 
     useEffect(() => {
         if (email) {
-            GET_EMAIL('users', email)
+            GET_CART('users', email, CartId)
                 .then(response => {
-                    const cart = response.cart;
-                    setCartItems(cart.products);
+                    const cart = response;
+                    setCartItems(cart.cartItemDTOS);
                     setTotalPrice(cart.totalPrice);
                     localStorage.setItem('CartId', cart.cartId);
-                    localStorage.setItem('CartLength', cart.products.length);
+                    localStorage.setItem('CartLength', cart.cartItemDTOS.length);
                 })
                 .catch(error => {
                     console.error('Failed to fetch cart items:', error);
                 });
         } else {
-            console.warn('No id found in localStorage.');
+            console.warn('No email found in localStorage.');
         }
     }, [email]);
 
     const handleDelete = (CartId, productId) => {
         const url = `/carts/${CartId}/product/${productId}`;
-
         DELETE_ID(url)
-            .then(response => {
-                const updatedCartItems = cartItems.filter(item => item.productId !== productId);
+            .then(() => {
+                const updatedCartItems = cartItems.filter(item => item.product.productId !== productId);
                 setCartItems(updatedCartItems);
                 localStorage.setItem('CartLength', updatedCartItems.length);
-                const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+                const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
                 setTotalPrice(newTotalPrice);
-
-                toast.success("Xóa thành công", {
+                toast.success("Product removed successfully", {
                     position: "bottom-right",
                     autoClose: 2000,
                 });
-                navigate('/cart');
             })
             .catch(error => {
                 console.error('Delete error:', error);
-                toast.error("Xóa thất bại", {
+                toast.error("Failed to remove product", {
                     position: "bottom-right",
                     autoClose: 2000,
                 });
             });
     };
 
-    const updateQuantity = (productId, newQuantity) => {
-        const updatedCartItems = cartItems.map(item =>
-            item.productId === productId ? { ...item, quantity: newQuantity } : item
-        );
-
-        setCartItems(updatedCartItems);
-        const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-        setTotalPrice(newTotalPrice);
-    };
-
-    const handleEditQuantity = (productId, newQuantity) => {
-        // Prevent the quantity from being less than 1
-        if (newQuantity < 1) return;
-
-        // Update the quantity for the specified product
-        const updatedCartItems = cartItems.map(item =>
-            item.productId === productId ? { ...item, quantity: newQuantity } : item
-        );
-
-        setCartItems(updatedCartItems);
-
-        // Recalculate total price
-        const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-        setTotalPrice(newTotalPrice);
-
-        toast.success("Quantity updated successfully", {
-            position: "bottom-right",
-            autoClose: 2000,
-        });
+    const handleEdit = (CartId, productId, quantity) => {
+        const url = `/carts/${CartId}/products/${productId}/quantity/${quantity}`;
+        PUT_EDIT(url)
+            .then(() => {
+                const updatedCartItems = cartItems.map(item =>
+                    item.product.productId === productId ? { ...item, quantity } : item
+                );
+                setCartItems(updatedCartItems);
+                const newTotalPrice = updatedCartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
+                setTotalPrice(newTotalPrice);
+                toast.success("Quantity updated successfully", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+            })
+            .catch(error => {
+                console.error('Update error:', error);
+                toast.error("Failed to update quantity", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
+            });
     };
 
     const increaseQuantity = (productId) => {
-        const item = cartItems.find(item => item.productId === productId);
-        if (item) {
-            handleEditQuantity(productId, item.quantity + 1);
-        }
+        const item = cartItems.find(item => item.product.productId === productId);
+        const newQuantity = item.quantity + 1;
+        handleEdit(CartId, productId, newQuantity);
     };
 
     const decreaseQuantity = (productId) => {
-        const item = cartItems.find(item => item.productId === productId);
-        if (item && item.quantity > 1) {
-            handleEditQuantity(productId, item.quantity - 1);
+        const item = cartItems.find(item => item.product.productId === productId);
+        if (item.quantity > 1) {
+            const newQuantity = item.quantity - 1;
+            handleEdit(CartId, productId, newQuantity);
         }
+    };
+
+    const handleQuantityChange = (productId, newQuantity) => {
+        if (newQuantity < 1) return; // Prevent going below 1
+        handleEdit(CartId, productId, newQuantity); // Call handleEdit to update the quantity in the backend
     };
 
     return (
@@ -106,72 +101,84 @@ const Cart = () => {
                     <div className="row">
                         <main className="col-md-9">
                             <div className="card">
-                                <table className="table table-borderless table-shopping-cart">
-                                    <thead className="text-muted">
-                                        <tr className="small text-uppercase">
-                                            <th scope="col">Product</th>
-                                            <th scope="col" className='text-center' width="200">Quantity</th>
-                                            <th scope="col" width="120">Price</th>
-                                            <th scope="col" className="text-center" width="100"> </th>
-                                            <th scope="col" className="text-center" width="100"> </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {cartItems.map((item) => (
-                                            <tr key={item.productId}>
-                                                <td>
-                                                    <figure className="itemside">
-                                                        <div className="aside">
-                                                            <img src={`http://localhost:8080/api/public/products/image/${item.image}`} className="img-sm" alt={item.productName} />
-                                                        </div>
-                                                        <figcaption className="info">
-                                                            <a href="#" className="title text-dark text-decoration-none">{item.productName}</a>
-                                                        </figcaption>
-                                                    </figure>
-                                                </td>
-                                                <td>
-                                                    <div className="input-group mb-0">
-                                                        <div className="input-group-prepend">
-                                                            <button className="btn btn-light" type="button" onClick={() => decreaseQuantity(item.productId)}> - </button>
-                                                        </div>
-                                                        <input
-                                                            type="number"
-                                                            className="form-control"
-                                                            value={item.quantity}
-                                                            onChange={(e) => handleEditQuantity(item.productId, Number(e.target.value))}
-                                                            min="1" // Prevents entering 0 or negative numbers
-                                                        />
-                                                        <div className="input-group-append">
-                                                            <button className="btn btn-light" type="button" onClick={() => increaseQuantity(item.productId)}> + </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="price-wrap">
-                                                        <var className="price">${(item.price * item.quantity).toFixed(2)}</var>
-                                                    </div>
-                                                </td>
-                                                <td className="text-right">
-                                                    <button className="btn btn-danger" onClick={() => handleDelete(CartId, item.productId)}>
-                                                        Remove
-                                                    </button>
-                                                </td>
+                                {cartItems.length === 0 ? (
+                                    <div className="card">
+                                        <div className="card-body text-center">
+                                            <h5 className="text-muted">Your cart is empty</h5>
+                                            <a href="/" className="btn btn-primary mt-3">Continue Shopping</a>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <table className="table table-borderless table-shopping-cart">
+                                        <thead className="text-muted">
+                                            <tr className="small text-uppercase">
+                                                <th scope="col">Product</th>
+                                                <th scope="col" className='text-center' width="200">Quantity</th>
+                                                <th scope="col" width="120">Price</th>
+                                                <th scope="col" className="text-center" width="100">Remove</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {cartItems.map((item) => (
+                                                <tr key={item.product.productId}>
+                                                    <td>
+                                                        <figure className="itemside">
+                                                            <div className="aside">
+                                                                <img src={`http://localhost:8080/api/public/products/image/${item.product.image}`} className="img-sm" alt={item.product.productName} />
+                                                            </div>
+                                                            <figcaption className="info">
+                                                                <a href="#" className="title text-dark text-decoration-none">{item.product.productName}</a>
+                                                            </figcaption>
+                                                        </figure>
+                                                    </td>
+                                                    <td>
+                                                        <div className="input-group mb-0">
+                                                            <div className="input-group-prepend">
+                                                                <button className="btn btn-light" type="button" onClick={() => decreaseQuantity(item.product.productId)}> - </button>
+                                                            </div>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control text-center"
+                                                                value={item.quantity}
+                                                                min="1"
+                                                                onChange={(e) => handleQuantityChange(item.product.productId, parseInt(e.target.value))}
+                                                            />
+                                                            <div className="input-group-append">
+                                                                <button className="btn btn-light" type="button" onClick={() => increaseQuantity(item.product.productId)}> + </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="price-wrap">
+                                                            <var className="price">${(item.productPrice * item.quantity).toFixed(2)}</var>
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-right">
+                                                        <button className="btn btn-danger" onClick={() => handleDelete(CartId, item.product.productId)}>
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
 
-                                <div className="card-body border-top">
-                                    <a href="/Payment" className="btn btn-primary float-md-right">Payment <i className="fa fa-chevron-right"></i> </a>
-                                    <a href="/" className="btn btn-light"> <i className="fa fa-chevron-left"></i> Continue shopping </a>
+                                {cartItems.length > 0 && (
+                                    <div className="card-body border-top">
+                                        <a href="/Payment" className="btn btn-primary float-md-right">Payment <i className="fa fa-chevron-right"></i> </a>
+                                        <a href="/" className="btn btn-light"> <i className="fa fa-chevron-left"></i> Continue shopping </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {cartItems.length > 0 && (
+                                <div className="alert alert-success mt-3">
+                                    <p className="icontext">
+                                        <i className="icon text-success fa fa-truck"></i> Free Delivery within 1-2 weeks
+                                    </p>
                                 </div>
-                            </div>
-
-                            <div className="alert alert-success mt-3">
-                                <p className="icontext">
-                                    <i className="icon text-success fa fa-truck"></i> Free Delivery within 1-2 weeks
-                                </p>
-                            </div>
+                            )}
                         </main>
 
                         <aside className="col-md-3">

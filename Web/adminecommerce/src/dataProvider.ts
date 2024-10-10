@@ -313,7 +313,7 @@ export const dataProvider: DataProvider = {
         // Format the cart data
         if (resource === "carts") {
             data = {
-                id: result.json[idField], // Correctly mapping the ID field
+                id: result.json[idField], // Cart ID
                 totalPrice: result.json.totalPrice,
                 products: result.json.products.map((product: any) => ({
                     id: product.productId,
@@ -328,7 +328,31 @@ export const dataProvider: DataProvider = {
                         id: product.category.categoryId,
                         name: product.category.categoryName
                     } : null,
+                })),
+
+                // Handling cartItemDTOS separately
+                cartItemDTOS: result.json.cartItemDTOS.map((cartItem: any) => ({
+                    quantity: cartItem.quantity,
+                    discount: cartItem.discount,
+                    productPrice: cartItem.productPrice,
+
+                    // Mapping the product inside cartItemDTO
+                    product: {
+                        id: cartItem.product.productId,
+                        productName: cartItem.product.productName,
+                        image: cartItem.product.image ? `${baseUrl}${cartItem.product.image}` : null,
+                        description: cartItem.product.description,
+                        quantity: cartItem.product.quantity,
+                        price: cartItem.product.price,
+                        discount: cartItem.product.discount,
+                        specialPrice: cartItem.product.specialPrice,
+                        category: cartItem.product.category ? {
+                            id: cartItem.product.category.categoryId,
+                            name: cartItem.product.category.categoryName
+                        } : null,
+                    }
                 }))
+
             };
         }
         else if (resource === "orders") {

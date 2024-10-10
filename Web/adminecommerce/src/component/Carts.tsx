@@ -62,22 +62,28 @@ export const CartShow = () => {
                 <CustomPDFButton />
                 <TextField source="id" label="Cart ID" />
                 <NumberField source="totalPrice" label="Total Price" />
-                <ArrayField source="products" label="Products">
+
+                {/* ArrayField for displaying products */}
+
+                <ArrayField source="cartItemDTOS" label="Cart Items">
                     <Datagrid>
-                        <TextField source="id" label="Product ID" />
-                        <TextField source="productName" label="Product Name" />
-                        <ImageField source="image" label="Image" />
-                        <TextField source="description" label="Description" />
+                        {/* Displaying the quantity and other information from cartItemDTO */}
+                        <TextField source="product.id" label="Product ID" />
+                        <TextField source="product.productName" label="Product Name" />
+                        <ImageField source="product.image" label="Image" />
                         <NumberField source="quantity" label="Quantity" />
-                        <NumberField source="price" label="Price" />
-                        <NumberField source="discount" label="Discount" />
-                        <NumberField source="specialPrice" label="Special Price" />
-                        <ReferenceField source="category.categoryId" reference="categories" label="Category">
-                            <TextField source="categoryName" />
+                        <TextField source="product.description" label="Description" />
+                        <NumberField source="product.price" label="Price" />
+                        <NumberField source="product.discount" label="Discount" />
+                        <NumberField source="product.specialPrice" label="Special Price" />
+                        <ReferenceField source="product.category.categoryId" reference="categories" label="Category">
+                            <TextField source="product.category.categoryName" />
                         </ReferenceField>
                     </Datagrid>
                 </ArrayField>
+
             </SimpleShowLayout>
+
         </Show>
     );
 };

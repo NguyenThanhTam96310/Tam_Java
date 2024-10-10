@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [quantity, setQuantity] = useState(1); // State for quantity
+    const [quantity, setQuantity] = useState(1);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const productId = queryParams.get('productId');

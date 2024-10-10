@@ -37,7 +37,9 @@ export function GET_ID(endpoint, id) {
 export function GET_EMAIL(endpoint, email) {
   return callApi(endpoint + "/email/" + email, "GET");
 }
-
+export function GET_CART(endpoint, email, id) {
+  return callApi(endpoint + "/" + email + "/carts/" + id, "GET");
+}
 export function POST_ADD(endpoint, data) {
   return callApi(endpoint, "POST", data);
 }

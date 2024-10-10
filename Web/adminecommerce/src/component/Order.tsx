@@ -14,7 +14,7 @@ const CustomOrderButton = () => {
         return <span>No cart ID</span>;
     }
 
-    return <OrderButton />;
+    //return <OrderButton />;
 };
 
 export const OrderList = () => {
@@ -62,7 +62,7 @@ export const OrderShow = () => {
             }}
         >
             <SimpleShowLayout>
-                <CustomOrderButton />
+                {/* <CustomOrderButton /> */}
                 <TextField source="id" label="Order ID" />
                 <NumberField source="totalAmount" label="Total Amount" />
                 <ArrayField source="orderItems" label="Order Items">

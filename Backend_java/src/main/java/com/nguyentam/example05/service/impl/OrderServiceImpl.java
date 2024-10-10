@@ -28,6 +28,7 @@ import com.nguyentam.example05.repository.CartRepo;
 import com.nguyentam.example05.repository.OrderItemRepo;
 import com.nguyentam.example05.repository.OrderRepo;
 import com.nguyentam.example05.repository.PaymentRepo;
+import com.nguyentam.example05.repository.ProductRepo;
 import com.nguyentam.example05.repository.UserRepo;
 import com.nguyentam.example05.service.CartService;
 import com.nguyentam.example05.service.OrderService;
@@ -56,6 +57,8 @@ public class OrderServiceImpl implements OrderService {
   public CartService cartService;
   @Autowired
   public ModelMapper modelMapper;
+  @Autowired
+  private ProductRepo productRepo;
 
   @Override
   public OrderDTO placeOrder(String emailld, Long cartId, String paymentMethod) {

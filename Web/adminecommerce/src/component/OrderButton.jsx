@@ -14,8 +14,6 @@ const OrderButton = () => {
             const token = localStorage.getItem('jwt-token');
             const email = localStorage.getItem('globalEmailOrder');
 
-
-
             if (!orderId) {
                 setError(new Error('No order ID found'));
                 setLoading(false);
@@ -30,7 +28,7 @@ const OrderButton = () => {
 
             try {
                 const response = await fetch(
-                    `http://localhost:8080/api/public/users/${email}/carts/${orderId}`,
+                    `http://localhost:8080/api/public/users/${email}/orders/${orderId}`,
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -46,6 +44,7 @@ const OrderButton = () => {
                 const result = await response.json();
                 setData(result);
             } catch (error) {
+                console.error("Error fetching order data:", error);
                 setError(error);
             } finally {
                 setLoading(false);
@@ -88,21 +87,27 @@ const OrderButton = () => {
     };
 
     return (
-        <BlobProvider document={<MyDocument data={data} />}>
-            {({ url }) => (
-                <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={styles.btn}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    <HiOutlinePrinter size={17} />
-                    <span>PRINT</span>
-                </a>
-            )}
-        </BlobProvider>
+        // <BlobProvider document={<MyDocument data={data} />}>
+        //     {({ url, loading: pdfLoading }) => {
+        //         if (pdfLoading) return <div>Generating PDF...</div>;
+        //         if (!url) return <div>Error generating PDF</div>;
+
+        //         return (
+        //             <a
+        //                 href={url}
+        //                 target="_blank"
+        //                 rel="noopener noreferrer"
+        //                 style={styles.btn}
+        //                 onMouseEnter={handleMouseEnter}
+        //                 onMouseLeave={handleMouseLeave}
+        //             >
+        //                 <HiOutlinePrinter size={17} />
+        //                 <span>PRINT</span>
+        //             </a>
+        //         );
+        //     }}
+        // </BlobProvider>
+        <span>PRINT</span>
     );
 };
 
